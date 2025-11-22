@@ -140,3 +140,68 @@ class TestNetwork(unittest.TestCase):
             all_prev_w = all_curr_w # update previous
             all_prev_b = all_curr_b
 
+
+    def test_numerical_gradient_check(self):
+        """
+        Numerically estimate the gradient of the cost function w.r.t. weights and biases.
+        Compares to analytical gradients from backpropagation following this stack overflow post:
+        https://ai.stackexchange.com/questions/3962/how-do-i-know-if-my-backpropagation-is-implemented-correctly
+        and this link
+        https://web.archive.org/web/20171122205139/http://ufldl.stanford.edu/wiki/index.php/Gradient_checking_and_advanced_optimization 
+        """
+        np.random.seed(0)
+        net = Network([784, 30, 10])
+        x = np.random.randn(784, 1)
+        y = np.random.randn(1, 1)
+
+
+        analytic_b, analytic_w = net.backprop(x, y) #only computed the gradients, does not change the random initialization of the weights and biases
+
+
+        num_w = [np.zeros_like(w) for w in net.weights]
+        num_b = [np.zeros_like(b) for b in net.biases]
+
+
+        # numerical gradients for weights
+        #iterate through every weight individually
+        epsilon=1e-5
+        for l, W in enumerate(net.weights):
+            for i in range(W.shape[0]):
+                for j in range(W.shape[1]):
+                    W_epsilon = np.copy(W)
+                    W_epsilon[i, j] += epsilon
+                    net.weights[l] = W_epsilon #reassigning the weight in the network so we can use the feedforward method to get the corresponding activations
+                    plus_cost = 0.5 * np.sum((net.feed_forward(x)[0][-1] - y)**2) #This is the sum of our cost function: 0.5*(a - y)^2, the derivative will just be (a - y)
+
+
+                    W_epsilon[i, j] -= 2 * epsilon
+                    net.weights[l] = W_epsilon
+                    minus_cost = 0.5 * np.sum((net.feed_forward(x)[0][-1] - y)**2) 
+
+
+                    num_w[l][i, j] = (plus_cost - minus_cost) / (2 * epsilon) #compute derivative for one individual weight
+                net.weights[l] = np.copy(W)  # reset layer
+
+
+        # numerical gradients for biases
+        for l, b in enumerate(net.biases):
+            for i in range(b.shape[0]):
+                b_epsilon = np.copy(b)
+                b_epsilon[i, 0] += epsilon
+                net.biases[l] = b_epsilon
+                plus_cost = 0.5 * np.sum((net.feed_forward(x)[0][-1] - y)**2)
+
+
+                b_epsilon[i, 0] -= 2 * epsilon
+                net.biases[l] = b_epsilon
+                minus_cost = 0.5 * np.sum((net.feed_forward(x)[0][-1] - y)**2)
+
+
+                num_b[l][i, 0] = (plus_cost - minus_cost) / (2 * epsilon) 
+            net.biases[l] = np.copy(b)  
+
+        for ab, nb in zip(analytic_b, num_b):
+            self.assertTrue(np.allclose(ab, nb))
+        for aw, nw in zip(analytic_w, num_w):
+            self.assertTrue(np.allclose(aw, nw))
+
