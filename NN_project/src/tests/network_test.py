@@ -90,6 +90,9 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(num_neurons_a, sum(layers[1:]))
         self.assertEqual(num_neurons_z, sum(layers[1:])) # the zs are only computed for the hidden and output layers since the input layer isn't composed of actual neurons
     
+    ####################################################################################################################################################3
+    ## Some larger scale tests, inspired by this blog post: https://www.sebastianbjorkqvist.com/blog/writing-automated-tests-for-neural-networks/ 
+
     def test_nonzero_and_decreasing_gradients(self):
         """Test that none of the gradients are 0 and that at least some of them are decreasing in the backpropogation method"""
         training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
@@ -205,3 +208,40 @@ class TestNetwork(unittest.TestCase):
         for aw, nw in zip(analytic_w, num_w):
             self.assertTrue(np.allclose(aw, nw))
 
+    
+    def test_overfits_minibatch(self):
+        """Test that the network can overfit a small mini batch of data"""
+        training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
+        training_data = list(training_data)
+        mini_batch = training_data[:10] #take only 10 samples to overfit on
+        layers = [784, 30, 10]
+        net = Network(layers)
+
+        #train for a large number of epochs to ensure overfitting
+        epochs = 5000
+        for epoch in range(epochs):
+            net.update_mini_batch(mini_batch, eta=3.0)
+
+        #check that the network predicts all 10 samples correctly
+        correct_predictions = 0
+        for image, label in mini_batch:
+            output_activations = net.feed_forward(image)[0][-1]
+            predicted_label = np.argmax(output_activations)
+            true_label = np.argmax(label)
+            if predicted_label == true_label:
+                correct_predictions += 1
+
+        self.assertEqual(correct_predictions, len(mini_batch))
+
+    def test_all_weights_change(self):
+        """Test that all weights are updated after a single update mini batch call"""
+        training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
+        training_data = list(training_data)
+        mini_batch = training_data[:10]
+        layers = [784, 30, 10]
+        net = Network(layers)
+
+        old_weights = [w.copy() for w in net.weights]
+        net.update_mini_batch(mini_batch, eta=3.0)
+        for w, old_w in zip(net.weights, old_weights):
+            self.assertFalse(np.allclose(w, old_w)) #check that they changed
