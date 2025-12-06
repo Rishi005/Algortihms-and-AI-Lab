@@ -39,11 +39,11 @@ This essentially tells us how fast the cost function changes wrt. each neuron in
 
 We can simplify this: since we know are using the Mean Squared Error (MSE) as our cost function, we can compute the gradient of the MSE wrt to $a^l$
 
-$MSE = \dfrac{1}{2} || y + a^l||_2^2$ &emsp; where y is the true label
+$MSE = \dfrac{1}{2} \left \lVert y + a^l \right \rVert_2^2$ &emsp; where y is the true label
 
-$\therefore \dfrac {\partial MSE}{\partial a^l} = \dfrac{2}{2} || y + a^l||_2 \cdot (0-1)$ 
+$\therefore \dfrac {\partial MSE}{\partial a^l} = \dfrac{2}{2} \left \lVert y + a^l \right \rVert_2 \cdot (0-1)$ 
 
-&emsp; &emsp; &emsp;&emsp;&emsp;$= a^l - y$
+&emsp; &emsp; &emsp;&emsp;&emsp; $= a^l - y$
 
 Hence $\delta^L = (a^L - y) \odot \sigma'(z^L)$ &emsp;&emsp; **(Equation 1)**
 
