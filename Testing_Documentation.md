@@ -31,9 +31,13 @@ using finite differences for every weight and bias.
 
 *** 
 Realistic inputs were used, mostly the same size as the current model takes, so a network shape of [784, 30, 10]. 
-To reproduce these tests, you need to install the following dependencies using poetry: unittests, numpy. You will also need to download the mnist_loader.py file and architecture.py file since the tests will be using methods from these. The tests (in network.tests.py) need to be inside the src folder, which also contains mnist_loader.py and architecture.py. To run these tests, you can navigate into your src folder in the terminal and type in the following command: pytest network_test.py.  
+To reproduce these tests, you need to install the following dependencies using poetry: unittests, numpy. You will also need to download the mnist_loader.py file and architecture.py file since the tests will be using methods from these. The tests (in network_tests.py) need to be inside the src folder, which also contains mnist_loader.py and architecture.py. To run these tests, you can navigate into your tests folder in the terminal and type in the following command: pytest network_test.py.  
 
-Setting up poetry environment:
+1. Setting up poetry environment using the pyproject.toml file in the repo:
+```bash
+poetry install --no-root
+```
+2. Setting up your own poetry environment:
 
 ```bash
 poetry shell
@@ -45,12 +49,12 @@ poetry add unittests --group dev
 Navigate to where the src folder is stored and run the following command:
 
 ```bash
-pytest src
+pytest tests
 ```
 The coverage test is as follows:
 
 ```bash
-coverage run --branch -m pytest src
+coverage run --branch -m pytest tests
 coverage report -m
 ```
 <img width="975" height="237" alt="Screenshot from 2025-11-22 14-51-25" src="https://github.com/user-attachments/assets/af0c5a3f-933d-4da3-a3c5-1c4f9645e48c" />
