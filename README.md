@@ -1,3 +1,6 @@
+This project builds a simple Neural Network using the simoid activation function and the Mean Squared Error as the cost function to detect the correct number on a given image of a handwritten digit taken from the MNIST dataset. The aim of this project was to learn and implenment the algorithms behind a Neural Net using only the basic python functions and no libraries such as scikit-learn. 
+
+
 # User Guide
 
 ## To run the program:
