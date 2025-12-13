@@ -4,6 +4,10 @@ import src.mnist_loader as mnist_loader
 import numpy as np
 import random 
 
+ETA = 3.0
+HIDDEN_NEURONS = 30
+SIZES = [784, HIDDEN_NEURONS, 10]
+
 class TestNetwork(unittest.TestCase):
     def setUp(self):
         # not going to initialize anything here since the tests run faster when its initialized in the methods themselves e.g loading training data
@@ -27,7 +31,7 @@ class TestNetwork(unittest.TestCase):
 
     def test_network_init_shapes(self):
         """Testing if the shapes of the weights and biases are set up correctly during network initialization"""
-        list_of_layers = [[784, 30, 10], [800, 50, 20, 10]]
+        list_of_layers = [SIZES, [800, 50, 20, 10]]
 
         for layers in list_of_layers:
             net = Network(layers)
@@ -39,7 +43,7 @@ class TestNetwork(unittest.TestCase):
 
     def test_feedforward_shapes(self):
         """Test that the feed forward method produces activations and zs of the correct shape"""
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
         image = np.random.randn(layers[0], 1) #randomly initialize a flattened image with the size of the input layer
         activations, zs = net.feed_forward(image)
@@ -49,7 +53,7 @@ class TestNetwork(unittest.TestCase):
 
     def test_backprop_shapes(self):
         """Test that the backpropagaion method returns the correct shapes and the gradients are not infinte"""
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
         image = np.random.randn(layers[0], 1)
         label = np.array([[1]])
@@ -65,7 +69,7 @@ class TestNetwork(unittest.TestCase):
     def test_zero_learning_rate(self):
         """Test that a learning rate of zero will not modify the weights"""
         np.random.seed(0)
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
 
         image = np.random.randn(layers[0], 1) 
@@ -79,7 +83,7 @@ class TestNetwork(unittest.TestCase):
 
     def test_feed_forward_all_neurons(self):
         """Test that the feed forward method goes through all neurons in all layers"""
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
         a = np.random.randn(layers[0], 1) #initializing feedforward input by randomizing activaions for the input layer -- this in practice would be the greyscale pixel values of a flattened image
         activations, zs = net.feed_forward(a)
@@ -98,7 +102,7 @@ class TestNetwork(unittest.TestCase):
         training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
         training_data = list(training_data)
         mini_batch = training_data[:10]
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
 
         for image, label in mini_batch:
@@ -122,8 +126,8 @@ class TestNetwork(unittest.TestCase):
         mini_batch = training_data[:10]
 
         np.random.seed(15) #initialize a seed so that the random initialization of the weights and biases once the Network object is created stays the same for every new object
-        net = Network([784, 30, 10])
-        net.update_mini_batch(mini_batch, eta=3.0)
+        net = Network(SIZES)
+        net.update_mini_batch(mini_batch, eta=ETA)
         
         all_prev_b = np.concatenate([b.flatten() for b in net.biases])
         all_prev_w = np.concatenate([w.flatten() for w in net.weights]) #save weights and biases after training on an unshuffled minibatch to use for comparision later
@@ -131,9 +135,9 @@ class TestNetwork(unittest.TestCase):
         for trial in range(4):
             net = None # reset net object to none for a clean slate
             np.random.seed(15) #make sure the new object has the same initializations of weights and biases
-            net = Network([784, 30, 10])
+            net = Network(SIZES)
             random.shuffle(mini_batch) #shuffle the order of input images
-            net.update_mini_batch(mini_batch, eta=3.0)
+            net.update_mini_batch(mini_batch, eta=ETA)
             all_curr_b = np.concatenate([b.flatten() for b in net.biases])
             all_curr_w = np.concatenate([w.flatten() for w in net.weights])
 
@@ -153,7 +157,7 @@ class TestNetwork(unittest.TestCase):
         https://web.archive.org/web/20171122205139/http://ufldl.stanford.edu/wiki/index.php/Gradient_checking_and_advanced_optimization 
         """
         np.random.seed(0)
-        net = Network([784, 30, 10])
+        net = Network(SIZES)
         x = np.random.randn(784, 1)
         y = np.random.randn(1, 1)
 
@@ -214,13 +218,13 @@ class TestNetwork(unittest.TestCase):
         training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
         training_data = list(training_data)
         mini_batch = training_data[:10] #take only 10 samples to overfit on
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
 
         #train for a large number of epochs to ensure overfitting
         epochs = 5000
         for epoch in range(epochs):
-            net.update_mini_batch(mini_batch, eta=3.0)
+            net.update_mini_batch(mini_batch, eta=ETA)
 
         #check that the network predicts all 10 samples correctly
         correct_predictions = 0
@@ -238,10 +242,10 @@ class TestNetwork(unittest.TestCase):
         training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
         training_data = list(training_data)
         mini_batch = training_data[:10]
-        layers = [784, 30, 10]
+        layers = SIZES
         net = Network(layers)
 
         old_weights = [w.copy() for w in net.weights]
-        net.update_mini_batch(mini_batch, eta=3.0)
+        net.update_mini_batch(mini_batch, eta=ETA)
         for w, old_w in zip(net.weights, old_weights):
             self.assertFalse(np.allclose(w, old_w)) #check that they changed

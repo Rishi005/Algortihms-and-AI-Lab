@@ -20,12 +20,20 @@ def sigmoid_prime(z):
 
 
 class Network:
-    ''' Initializes a neural network with the given number of neurons per layer
-    :param sizes: A list of the number of neurons in that given layer, e.g: [2, 3, 2] 
-    means there are 3 layers where the second layer has 3 neurons etc.
+    ''' Implements a feedforward neural network with backpropagation and
+    stochastic gradient descent training algorithm. Uses sigmoid activation 
+    function and mean squared error loss function.
+
+    Example:
+    >>> net = Network([784, 30, 10])  # 784 input, 30 hidden, 10 output neurons
+    >>> net.sgd(training_data, epochs=30, mini_batch_size=10, eta=3.0)
     '''
 
     def __init__(self, sizes):
+        ''' Initializes a neural network with the given number of neurons per layer
+        :param sizes: A list of the number of neurons in that given layer, e.g: [2, 3, 2] 
+        means there are 3 layers where the second layer has 3 neurons etc.
+        '''
         self.num_layers = len(sizes)
         self.sizes = sizes
         # in the following we ignore the first layer since we assume
@@ -34,7 +42,7 @@ class Network:
         # list of matricies of randomly initialized biases for the neurons in each layer
         # in the network using a standard gaussian distribution
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        
+
         # list of matricies of weights between all neurons orgalized by layer
 
         # Xavier initialization for weights to prevent vanishing/exploding
