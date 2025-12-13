@@ -107,7 +107,7 @@ $\dfrac{\partial C}{\partial w^l} = a^{l-1} \delta^l$
 
 $\dfrac{\partial C}{\partial b^l} = \delta^l$
 
-We will use these two equations as our **update rule** during SGD
+We will use these two equations in our **update rule** 
 
 > Proof: \
 **Part 1:** For $\dfrac{\partial C}{\partial w^l} = a^{l-1} \delta^l$ :
@@ -144,3 +144,27 @@ $\therefore \dfrac{\partial C}{\partial b^l} = \dfrac{\partial C}{\partial a^l} 
 $= \nabla_a C \odot \sigma'(z^l) = \delta^l $
 
 
+### Update rule: 
+We update every weight and bias in the network using the following rule:
+
+$w_k = w_k - \eta \dfrac{\partial C}{\partial w_k} $
+
+$b_l = b_l - \eta \dfrac{\partial C}{\partial b_l} $
+
+where $\eta$ (eta) is the learning rate
+
+We can try to think of these equations intuitively as moving some small distance $\eta$ in the direction of the steepest decrease in the loss ($- \nabla C $) for both the weights and biases. This way, we will eventually reach a local minima in the cost function.
+
+But since we are using mini-batches in our SGD algorithm to avoid computing all gradients of all training samples at once, we need to modify our update rules a bit. 
+
+The essential idea here is that we can approximate the true gradient of the cost function $\nabla C$ by using the average gradient of the mini-batch, so:
+
+$\dfrac{\sum \nabla C_{X_j}}{m} \approx \dfrac{\sum \nabla C_{x}}{n} = \nabla C $
+
+where $X_j$ are the samples in the mini-batch and $m$ is the number of samples in the mini-batch. And $x$ are the samples in the entire training set and $n$ is the size of the entire training set.
+
+Hence the update rules we use in practice are:
+
+$w_k = w_k - \dfrac{\eta}{m} \sum \dfrac{\partial C}{\partial w_k} $
+
+$b_l = b_l - \dfrac{\eta}{m} \sum \dfrac{\partial C}{\partial b_l} $
